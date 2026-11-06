@@ -1,0 +1,44 @@
+version: '3.8'
+
+# ==============================================================
+# EduMaktab AI - Docker Compose Orchestration
+# Barcha kompyuterlarda bitta buyruq bilan ishga tushirish:
+#   docker compose up --build
+# ==============================================================
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: edumaktab_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME="EduMaktab AI - O'qituvchi Yordamchisi"
+      - SECRET_KEY=${SECRET_KEY:-edumaktab-super-secret-key-change-in-production-2026}
+      - DATABASE_URL=sqlite:////app/schools_auto.db
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - TRIAL_ASSESSMENTS_ALLOWED=1
+    volumes:
+      # Ma'lumotlar bazasini konteyner o'chganda ham saqlab qolish
+      - ./backend/schools_auto.db:/app/schools_auto.db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: edumaktab_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_BACKEND_URL=http://backend:8000
+      - PORT=3000
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:

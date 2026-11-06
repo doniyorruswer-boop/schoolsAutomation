@@ -1,6 +1,11 @@
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from typing import Optional
+from pathlib import Path
 import os
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+DEFAULT_DB_FILE = BACKEND_DIR / "schools_auto.db"
 
 
 class Settings(BaseSettings):
@@ -13,7 +18,15 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 kun
     
     # Ma'lumotlar bazasi (Boshlanishiga SQLite, xohlasa PostgreSQL ga almashtirish mumkin)
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./schools_auto.db")
+    DATABASE_URL: str = f"sqlite:///{DEFAULT_DB_FILE}"
+
+    @field_validator("DATABASE_URL", mode="after")
+    @classmethod
+    def validate_database_url(cls, v: str) -> str:
+        if v and v.startswith("sqlite:///./"):
+            rel_name = v.replace("sqlite:///./", "")
+            return f"sqlite:///{BACKEND_DIR / rel_name}"
+        return v
     
     # Sun'iy intellekt (Gemini API)
     GEMINI_API_KEY: Optional[str] = os.getenv("GEMINI_API_KEY", "")
@@ -24,7 +37,7 @@ class Settings(BaseSettings):
 
     model_config = {
         "case_sensitive": True,
-        "env_file": ".env"
+        "env_file": [str(BACKEND_DIR / ".env"), ".env"]
     }
 
 
