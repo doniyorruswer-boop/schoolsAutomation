@@ -1,0 +1,16 @@
+{
+  "name": "O'qituvchi AI Yordamchisi",
+  "short_name": "EduMaktab",
+  "description": "O'qituvchilar uchun BSB, tahlil va dars rejasi avtomatizatsiyasi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
